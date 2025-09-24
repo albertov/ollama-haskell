@@ -18,6 +18,7 @@ jobs:
       - uses: haskell-actions/run-fourmolu@v11
         with:
           version: "latest"
+          working-directory: "./src"
 
   hlint:
     runs-on: ubuntu-latest

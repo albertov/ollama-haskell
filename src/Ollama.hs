@@ -189,11 +189,11 @@ import Data.Ollama.Common.Utils
 import Data.Ollama.Copy
 import Data.Ollama.Create
 import Data.Ollama.Delete
-import Data.Ollama.Embeddings
+import Data.Ollama.Embeddings hiding (keepAlive, modelName)
 import Data.Ollama.Generate
 import Data.Ollama.List
 import Data.Ollama.Load
-import Data.Ollama.Ps
+import Data.Ollama.Ps hiding (modelName)
 import Data.Ollama.Pull
 import Data.Ollama.Push
 import Data.Ollama.Show
