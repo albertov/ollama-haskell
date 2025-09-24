@@ -227,9 +227,7 @@ generate ops mbConfig =
     Left err -> pure $ Left err
     Right _ -> withOllamaRequest "/api/generate" "POST" (Just ops) mbConfig handler
   where
-    handler = case stream ops of
-      Nothing -> commonNonStreamingHandler
-      Just sendChunk -> commonStreamHandler sendChunk
+    handler = maybe commonNonStreamingHandler commonStreamHandler (stream ops)
 
 {- | MonadIO version of 'generate' for use in monadic contexts.
 

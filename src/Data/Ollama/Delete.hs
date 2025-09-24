@@ -60,7 +60,7 @@ deleteModel modelName mbConfig = do
     "DELETE"
     (Just reqBody)
     mbConfig
-    (fmap ((const ()) <$>) . nonJsonHandler)
+    (fmap (const () <$>) . nonJsonHandler)
 
 {- | MonadIO version of 'deleteModel' for use in monadic contexts.
 

@@ -9,6 +9,7 @@ import Control.Monad (void)
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy.Char8 qualified as BSL
 import Data.IORef (modifyIORef, newIORef, readIORef, writeIORef)
+import Data.Maybe (isJust)
 import Data.Ollama.Common.SchemaBuilder
 import Data.Ollama.Common.Utils (encodeImage)
 import Data.Ollama.Generate
@@ -201,8 +202,10 @@ testFormatJsonFormat = testCase "Should return response in JsonFormat" $ do
     Left err -> assertFailure $ "Expected success, got error: " ++ show err
     Right r -> do
       let responseText = genResponse r
-      let decoded = Aeson.decode (BSL.pack $ T.unpack responseText) :: Maybe Aeson.Value
-      assertBool "Expected valid JSON object in response" (decoded /= Nothing)
+      let decoded =
+            Aeson.decode (BSL.pack $ T.unpack responseText) ::
+              Maybe Aeson.Value
+      assertBool "Expected valid JSON object in response" (isJust decoded)
 
 testFormatSchemaFormat :: TestTree
 testFormatSchemaFormat = testCase "Should include SchemaFormat in the request" $ do

@@ -70,7 +70,7 @@ copyModel
       "POST"
       (Just reqBody)
       mbConfig
-      (fmap ((const ()) <$>) . nonJsonHandler)
+      (fmap (const () <$>) . nonJsonHandler)
 
 {- | MonadIO version of 'copyModel' for use in monadic contexts.
 

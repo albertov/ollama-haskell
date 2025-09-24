@@ -15,7 +15,7 @@ testEmbeddingBasic = testCase "Basic embedding with qwen3" $ do
     Left err -> assertFailure $ "Expected success, got error: " ++ show err
     Right EmbeddingResp {..} -> do
       assertEqual "Should return two embeddings" 2 (length respondedEmbeddings)
-      assertBool "Embeddings should not be empty" (all (not . null) respondedEmbeddings)
+      assertBool "Embeddings should not be empty" (not (any null respondedEmbeddings))
 
 testEmbeddingWithOptions :: TestTree
 testEmbeddingWithOptions = testCase "Embedding with truncate and keepAlive" $ do

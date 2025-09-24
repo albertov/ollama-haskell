@@ -155,7 +155,7 @@ withOllamaRequest endpoint reqMethod mbPayload mbOllamaConfig handler = do
             req
               { method = reqMethod
               , requestBody =
-                  maybe mempty (\x -> RequestBodyLBS $ encode x) mbPayload
+                  maybe mempty (RequestBodyLBS . encode) mbPayload
               }
           retryCnt = fromMaybe 0 retryCount
           retryDelay_ = fromMaybe 1 retryDelay

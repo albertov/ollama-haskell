@@ -24,7 +24,7 @@ main :: IO ()
 main = do
   eRes <- getVersion
   case eRes of
-    Left err -> putStrLn $ show err
+    Left err -> print err
     Right (Version r) -> do
       putStrLn $ "Ollama client version: " <> unpack r
       defaultMain tests

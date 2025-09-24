@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 
 {- |
 Module      : Data.Ollama.Chat
@@ -112,7 +111,7 @@ Example:
 Message {role = System, content = "You are a helpful assistant.", images = Nothing, tool_calls = Nothing, thinking = Nothing}
 -}
 systemMessage :: Text -> Message
-systemMessage c = genMessage System c
+systemMessage = genMessage System
 
 {- | Creates a 'Message' with the 'User' role.
 
@@ -122,7 +121,7 @@ Example:
 Message {role = User, content = "What's 2+2?", images = Nothing, tool_calls = Nothing, thinking = Nothing}
 -}
 userMessage :: Text -> Message
-userMessage c = genMessage User c
+userMessage = genMessage User
 
 {- | Creates a 'Message' with the 'Assistant' role.
 
@@ -132,7 +131,7 @@ Example:
 Message {role = Assistant, content = "2+2 equals 4.", images = Nothing, tool_calls = Nothing, thinking = Nothing}
 -}
 assistantMessage :: Text -> Message
-assistantMessage c = genMessage Assistant c
+assistantMessage = genMessage Assistant
 
 {- | Creates a 'Message' with the 'Tool' role.
 
@@ -142,7 +141,7 @@ Example:
 Message {role = Tool, content = "Tool output: success", images = Nothing, tool_calls = Nothing, thinking = Nothing}
 -}
 toolMessage :: Text -> Message
-toolMessage c = genMessage Tool c
+toolMessage = genMessage Tool
 
 {- | Validates 'ChatOps' to ensure required fields are non-empty.
 
@@ -225,7 +224,7 @@ instance Eq ChatOps where
       && keepAlive a == keepAlive b
 
 instance ToJSON ChatOps where
-  toJSON (ChatOps model_ messages_ tools_ format_ stream_ keepAlive_ options think_) =
+  toJSON (ChatOps model_ messages_ tools_ format_ stream_ keepAlive_ options_ think_) =
     object
       [ "model" .= model_
       , "messages" .= messages_
@@ -233,7 +232,7 @@ instance ToJSON ChatOps where
       , "format" .= format_
       , "stream" .= if isNothing stream_ then Just False else Just True
       , "keep_alive" .= keepAlive_
-      , "options" .= options
+      , "options" .= options_
       , "think" .= think_
       ]
 
@@ -279,9 +278,7 @@ chat ops mbConfig =
     Left err -> return $ Left err
     Right _ -> withOllamaRequest "/api/chat" "POST" (Just ops) mbConfig handler
   where
-    handler = case stream ops of
-      Nothing -> commonNonStreamingHandler
-      Just sendChunk -> commonStreamHandler sendChunk
+    handler = maybe commonNonStreamingHandler commonStreamHandler (stream ops)
 
 {- | MonadIO version of 'chat' for use in monadic contexts.
 

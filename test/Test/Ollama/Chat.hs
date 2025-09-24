@@ -161,7 +161,7 @@ jsonFormatTest = testCase "Should return response in JSON format" $ do
       Just msg -> do
         let responseText = content msg
         let decoded = Aeson.decode (BSL.pack $ T.unpack responseText) :: Maybe Aeson.Value
-        assertBool "Expected valid JSON object in response" (decoded /= Nothing)
+        assertBool "Expected valid JSON object in response" (isJust decoded)
 
 -- | Test streaming response
 streamingTest :: TestTree
@@ -193,8 +193,8 @@ modelOptionsTest = testCase "Should use custom model options" $ do
     Left err -> assertFailure $ "Expected success, got error: " ++ show err
     Right r -> assertBool "Expected a response message" (isJust (message r))
 
-testToolCall_addTwoNumbers :: TestTree
-testToolCall_addTwoNumbers = testCase "Tool call: addTwoNumbers(23, 46)" $ do
+testToolCallAddTwoNumbers :: TestTree
+testToolCallAddTwoNumbers = testCase "Tool call: addTwoNumbers(23, 46)" $ do
   let messageList = NE.singleton $ userMessage "What is 23 + 46? (Use tool)"
       paramProps =
         HM.fromList
@@ -274,5 +274,5 @@ tests =
     , jsonFormatTest
     , streamingTest
     , modelOptionsTest
-    , testToolCall_addTwoNumbers
+    , testToolCallAddTwoNumbers
     ]
