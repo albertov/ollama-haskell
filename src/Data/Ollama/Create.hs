@@ -122,7 +122,6 @@ createModel
       onToken :: CreateModelResp -> IO ()
       onToken _ = putStrLn "Creating model..."
 
-
 {- | MonadIO version of 'createModel' for use in monadic contexts.
 
 Lifts the 'createModel' function into a 'MonadIO' context, allowing it to be used in monadic computations.

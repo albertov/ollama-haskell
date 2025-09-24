@@ -3,12 +3,12 @@
 
 module Test.Ollama.Show (tests) where
 
+import Data.Maybe (isJust)
+import Data.Ollama.Ps
+import Data.Ollama.Show
+import Data.Text qualified as T
 import Test.Tasty
 import Test.Tasty.HUnit
-import Data.Ollama.Show
-import Data.Ollama.Ps
-import Data.Text qualified as T
-import Data.Maybe (isJust)
 
 testShowModelBasic :: TestTree
 testShowModelBasic = testCase "Show model info: basic call" $ do
@@ -23,7 +23,7 @@ testShowModelVerbose :: TestTree
 testShowModelVerbose = testCase "Show model info: verbose enabled" $ do
   res <- showModelOps "qwen3:0.6b" (Just True) Nothing
   case res of
-    Left _ -> pure () --assertFailure $ "Expected success, got error: " ++ show err
+    Left _ -> pure () -- assertFailure $ "Expected success, got error: " ++ show err
     Right ShowModelResponse {template, parameters} -> do
       -- Verbose should yield more details like parameters/template
       assertBool "Should have a template if verbose" (isJust template)
@@ -42,7 +42,7 @@ testPsModelFields = testCase "Running model fields are populated" $ do
   res <- ps Nothing
   case res of
     Left _ -> return () -- Allow failure if no models are running
-    Right (RunningModels (m:_)) -> do
+    Right (RunningModels (m : _)) -> do
       assertBool "name_ should not be empty" (not $ T.null $ name_ m)
       assertBool "modelName should not be empty" (not $ T.null $ modelName m)
       assertBool "modelDigest should not be empty" (not $ T.null $ modelDigest m)
@@ -51,9 +51,11 @@ testPsModelFields = testCase "Running model fields are populated" $ do
     Right _ -> return () -- If empty, that's acceptable
 
 tests :: TestTree
-tests = testGroup "show model tests" [
-    testShowModelBasic 
-  , testShowModelVerbose
-  , testPsBasic
-  , testPsModelFields
- ]
+tests =
+  testGroup
+    "show model tests"
+    [ testShowModelBasic
+    , testShowModelVerbose
+    , testPsBasic
+    , testPsModelFields
+    ]

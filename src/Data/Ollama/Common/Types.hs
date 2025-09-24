@@ -232,54 +232,54 @@ instance HasDone GenerateResponse where
 instance HasDone ChatResponse where
   getDone ChatResponse {..} = done
 
--- | Optional model tuning parameters that influence generation behavior.
---
--- @since 0.2.0.0
+{- | Optional model tuning parameters that influence generation behavior.
+
+@since 0.2.0.0
+-}
 data ModelOptions = ModelOptions
   { numKeep :: Maybe Int
-  , -- ^ Number of tokens to keep from the previous context.
-    seed :: Maybe Int
-  , -- ^ Random seed for reproducibility.
-    numPredict :: Maybe Int
-  , -- ^ Maximum number of tokens to predict.
-    topK :: Maybe Int
-  , -- ^ Top-K sampling parameter.
-    topP :: Maybe Double
-  , -- ^ Top-P (nucleus) sampling parameter.
-    minP :: Maybe Double
-  , -- ^ Minimum probability for nucleus sampling.
-    typicalP :: Maybe Double
-  , -- ^ Typical sampling probability.
-    repeatLastN :: Maybe Int
-  , -- ^ Number of tokens to consider for repetition penalty.
-    temperature :: Maybe Double
-  , -- ^ Sampling temperature. Higher = more randomness.
-    repeatPenalty :: Maybe Double
-  , -- ^ Penalty for repeating the same tokens.
-    presencePenalty :: Maybe Double
-  , -- ^ Penalty for introducing new tokens.
-    frequencyPenalty :: Maybe Double
-  , -- ^ Penalty for frequent tokens.
-    penalizeNewline :: Maybe Bool
-  , -- ^ Whether to penalize newline tokens.
-    stop :: Maybe [Text]
-  , -- ^ List of stop sequences to end generation.
-    numa :: Maybe Bool
-  , -- ^ Whether to enable NUMA-aware optimizations.
-    numCtx :: Maybe Int
-  , -- ^ Number of context tokens.
-    numBatch :: Maybe Int
-  , -- ^ Batch size used during generation.
-    numGpu :: Maybe Int
-  , -- ^ Number of GPUs to use.
-    mainGpu :: Maybe Int
-  , -- ^ Index of the primary GPU to use.
-    useMmap :: Maybe Bool
-  , -- ^ Whether to memory-map the model.
-    numThread :: Maybe Int
+  -- ^ Number of tokens to keep from the previous context.
+  , seed :: Maybe Int
+  -- ^ Random seed for reproducibility.
+  , numPredict :: Maybe Int
+  -- ^ Maximum number of tokens to predict.
+  , topK :: Maybe Int
+  -- ^ Top-K sampling parameter.
+  , topP :: Maybe Double
+  -- ^ Top-P (nucleus) sampling parameter.
+  , minP :: Maybe Double
+  -- ^ Minimum probability for nucleus sampling.
+  , typicalP :: Maybe Double
+  -- ^ Typical sampling probability.
+  , repeatLastN :: Maybe Int
+  -- ^ Number of tokens to consider for repetition penalty.
+  , temperature :: Maybe Double
+  -- ^ Sampling temperature. Higher = more randomness.
+  , repeatPenalty :: Maybe Double
+  -- ^ Penalty for repeating the same tokens.
+  , presencePenalty :: Maybe Double
+  -- ^ Penalty for introducing new tokens.
+  , frequencyPenalty :: Maybe Double
+  -- ^ Penalty for frequent tokens.
+  , penalizeNewline :: Maybe Bool
+  -- ^ Whether to penalize newline tokens.
+  , stop :: Maybe [Text]
+  -- ^ List of stop sequences to end generation.
+  , numa :: Maybe Bool
+  -- ^ Whether to enable NUMA-aware optimizations.
+  , numCtx :: Maybe Int
+  -- ^ Number of context tokens.
+  , numBatch :: Maybe Int
+  -- ^ Batch size used during generation.
+  , numGpu :: Maybe Int
+  -- ^ Number of GPUs to use.
+  , mainGpu :: Maybe Int
+  -- ^ Index of the primary GPU to use.
+  , useMmap :: Maybe Bool
+  -- ^ Whether to memory-map the model.
+  , numThread :: Maybe Int
   -- ^ Number of threads to use for inference.
   }
-
   deriving (Show, Eq)
 
 -- | Custom ToJSON instance for Options
@@ -318,9 +318,10 @@ instance FromJSON Version where
   parseJSON = withObject "version" $ \v -> do
     Version <$> v .: "version"
 
--- | Represents a tool that can be used in the conversation.
---
--- @since 0.2.0.0
+{- | Represents a tool that can be used in the conversation.
+
+@since 0.2.0.0
+-}
 data InputTool = InputTool
   { toolType :: Text
   -- ^ The type of the tool
@@ -342,9 +343,10 @@ instance FromJSON InputTool where
       <$> v .: "type"
       <*> v .: "function"
 
--- | Represents a function that can be called by the model.
---
--- @since 0.2.0.0
+{- | Represents a function that can be called by the model.
+
+@since 0.2.0.0
+-}
 data FunctionDef = FunctionDef
   { functionName :: Text
   -- ^ The name of the function
@@ -374,9 +376,10 @@ instance FromJSON FunctionDef where
       <*> v .:? "parameters"
       <*> v .:? "strict"
 
--- | Parameters definition for a function call used in structured output or tool calls.
---
--- @since 0.2.0.0
+{- | Parameters definition for a function call used in structured output or tool calls.
+
+@since 0.2.0.0
+-}
 data FunctionParameters = FunctionParameters
   { parameterType :: Text
   -- ^ Type of the parameter (usually "object").
@@ -406,18 +409,20 @@ instance FromJSON FunctionParameters where
       <*> v .: "required"
       <*> v .: "additionalProperties"
 
--- | A single tool call returned from the model, containing the function to be invoked.
---
--- @since 0.2.0.0
+{- | A single tool call returned from the model, containing the function to be invoked.
+
+@since 0.2.0.0
+-}
 newtype ToolCall = ToolCall
   { outputFunction :: OutputFunction
   -- ^ The function the model intends to call, with arguments.
   }
   deriving (Show, Eq)
 
--- | Output representation of a function to be called, including its name and arguments.
---
--- @since 0.2.0.0
+{- | Output representation of a function to be called, including its name and arguments.
+
+@since 0.2.0.0
+-}
 data OutputFunction = OutputFunction
   { outputFunctionName :: Text
   -- ^ The name of the function to invoke.

@@ -106,9 +106,10 @@ instance ToJSON Property where
   toJSON (Property (JObject schema)) = toJSON schema
   toJSON (Property typ) = object ["type" .= typ]
 
--- | Complete schema representation.
---
--- @since 0.2.0.0
+{- | Complete schema representation.
+
+@since 0.2.0.0
+-}
 data Schema = Schema
   { schemaProperties :: HM.Map Text Property
   , schemaRequired :: [Text]

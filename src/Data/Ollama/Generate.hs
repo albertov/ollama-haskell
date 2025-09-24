@@ -244,5 +244,7 @@ Right (GenerateResponse ...)
 -}
 generateM ::
   MonadIO m =>
-  GenerateOps -> Maybe OllamaConfig -> m (Either OllamaError GenerateResponse)
+  GenerateOps ->
+  Maybe OllamaConfig ->
+  m (Either OllamaError GenerateResponse)
 generateM ops mbCfg = liftIO $ generate ops mbCfg

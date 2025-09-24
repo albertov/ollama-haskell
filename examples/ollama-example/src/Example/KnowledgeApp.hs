@@ -1,22 +1,22 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Example.KnowledgeApp (runApp, exampleUsage) where
 
+import Control.Monad
+import Data.Aeson
+import qualified Data.ByteString.Lazy as L
+import Data.List.NonEmpty (NonEmpty (..))
+import Data.Ollama.Chat
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
-import Data.List.NonEmpty (NonEmpty(..))
-import Control.Monad
-import System.Directory
 import Data.Time
 import GHC.Generics
 import Ollama
-import Data.Ollama.Chat
-import Data.Aeson
-import qualified Data.ByteString.Lazy as L
+import System.Directory
 
 data Note = Note
   { noteId :: !Int
@@ -25,12 +25,14 @@ data Note = Note
   , noteTags :: ![Text]
   , noteCreated :: !UTCTime
   , noteModified :: !UTCTime
-  } deriving (Show, Eq, Generic, ToJSON, FromJSON)
+  }
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data KnowledgeBase = KnowledgeBase
   { notes :: ![Note]
   , nextId :: !Int
-  } deriving (Show, Eq, Generic, ToJSON, FromJSON)
+  }
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data Command
   = AddNote Text Text [Text]
@@ -65,15 +67,16 @@ emptyKnowledgeBase = KnowledgeBase [] 1
 addNote :: Text -> Text -> [Text] -> KnowledgeBase -> IO KnowledgeBase
 addNote title content tags kb = do
   now <- getCurrentTime
-  let note = Note
-        { noteId = nextId kb
-        , noteTitle = title
-        , noteContent = content
-        , noteTags = tags
-        , noteCreated = now
-        , noteModified = now
-        }
-  let newKb = kb { notes = note : notes kb, nextId = nextId kb + 1 }
+  let note =
+        Note
+          { noteId = nextId kb
+          , noteTitle = title
+          , noteContent = content
+          , noteTags = tags
+          , noteCreated = now
+          , noteModified = now
+          }
+  let newKb = kb {notes = note : notes kb, nextId = nextId kb + 1}
   saveKnowledgeBase newKb
   putStrLn $ "✓ Added note: " ++ T.unpack title
   return newKb
@@ -86,9 +89,9 @@ searchNotes query kb = do
   return matchingNotes
   where
     matchesQuery q note =
-      T.isInfixOf (T.toLower q) (T.toLower $ noteTitle note) ||
-      T.isInfixOf (T.toLower q) (T.toLower $ noteContent note) ||
-      any (T.isInfixOf (T.toLower q) . T.toLower) (noteTags note)
+      T.isInfixOf (T.toLower q) (T.toLower $ noteTitle note)
+        || T.isInfixOf (T.toLower q) (T.toLower $ noteContent note)
+        || any (T.isInfixOf (T.toLower q) . T.toLower) (noteTags note)
 
 listNotes :: KnowledgeBase -> IO ()
 listNotes kb = do
@@ -105,27 +108,30 @@ printNotePreview note = do
   putStrLn ""
 
 getAnsweredMessage :: ChatResponse -> Maybe Text
-getAnsweredMessage ChatResponse{..} = do
+getAnsweredMessage ChatResponse {..} = do
   case message of
     Nothing -> Nothing
-    Just Message{..} -> Just content
+    Just Message {..} -> Just content
 
 askQuestion :: Text -> KnowledgeBase -> IO ()
 askQuestion question kb = do
   putStrLn "🤔 Thinking..."
 
   let context = createContext kb
-  print ("context is ":: String, context)
-  let systemPrompt = "You are a helpful personal knowledge assistant. " <>
-                    "Use the provided context from the user's notes to answer their question. " <>
-                    "If the answer isn't in the context, say so politely. " <>
-                    "Context:\n" <> context
+  print ("context is " :: String, context)
+  let systemPrompt =
+        "You are a helpful personal knowledge assistant. "
+          <> "Use the provided context from the user's notes to answer their question. "
+          <> "If the answer isn't in the context, say so politely. "
+          <> "Context:\n"
+          <> context
 
-  let chatOps = defaultChatOps
-        { chatModelName = "gemma3"
-        , messages =
-            genMessage System systemPrompt :| [genMessage User question]
-        }
+  let chatOps =
+        defaultChatOps
+          { chatModelName = "gemma3"
+          , messages =
+              genMessage System systemPrompt :| [genMessage User question]
+          }
 
   result <- chat chatOps Nothing
   case result of
@@ -134,25 +140,31 @@ askQuestion question kb = do
       case getAnsweredMessage response of
         Nothing -> putStrLn "Something went wrong"
         Just r -> do
-            putStrLn "🤖 Assistant:"
-            TIO.putStrLn r
+          putStrLn "🤖 Assistant:"
+          TIO.putStrLn r
 
 createContext :: KnowledgeBase -> Text
 createContext kb =
   let relevantNotes = notes kb
       noteTexts = map formatNoteForContext relevantNotes
-  in T.intercalate "\n---\n" noteTexts
+   in T.intercalate "\n---\n" noteTexts
   where
     formatNoteForContext note =
-      "Title: " <> noteTitle note <> "\n" <>
-      "Tags: " <> T.intercalate ", " (noteTags note) <> "\n" <>
-      "Content: " <> noteContent note
+      "Title: "
+        <> noteTitle note
+        <> "\n"
+        <> "Tags: "
+        <> T.intercalate ", " (noteTags note)
+        <> "\n"
+        <> "Content: "
+        <> noteContent note
 
 summarizeNotes :: [Text] -> KnowledgeBase -> IO ()
 summarizeNotes tags kb = do
-  let filteredNotes = if null tags
-                     then notes kb
-                     else filter (hasAnyTag tags) (notes kb)
+  let filteredNotes =
+        if null tags
+          then notes kb
+          else filter (hasAnyTag tags) (notes kb)
 
   if null filteredNotes
     then putStrLn "No notes found with the specified tags."
@@ -160,12 +172,15 @@ summarizeNotes tags kb = do
       putStrLn "📝 Generating summary..."
 
       let notesText = T.intercalate "\n---\n" $ map formatNoteForSummary filteredNotes
-      let prompt = "Please provide a concise summary of these notes, highlighting key themes and insights:\n\n" <> notesText
+      let prompt =
+            "Please provide a concise summary of these notes, highlighting key themes and insights:\n\n"
+              <> notesText
 
-      let chatOps = defaultChatOps
-            { chatModelName = "gemma3"
-            , messages = genMessage User prompt :| []
-            }
+      let chatOps =
+            defaultChatOps
+              { chatModelName = "gemma3"
+              , messages = genMessage User prompt :| []
+              }
 
       result <- chat chatOps Nothing
       case result of
@@ -174,8 +189,8 @@ summarizeNotes tags kb = do
           case getAnsweredMessage response of
             Nothing -> putStrLn "Something went wrong"
             Just r -> do
-                putStrLn "📋 Summary:"
-                TIO.putStrLn r
+              putStrLn "📋 Summary:"
+              TIO.putStrLn r
   where
     hasAnyTag targetTags note = any (`elem` noteTags note) targetTags
     formatNoteForSummary note =
@@ -185,14 +200,14 @@ parseCommand :: Text -> Maybe Command
 parseCommand input =
   case T.words input of
     ["add", title] -> Just $ AddNote title "" []
-    "add":title:rest -> Just $ AddNote title (T.unwords rest) []
+    "add" : title : rest -> Just $ AddNote title (T.unwords rest) []
     ["search", query] -> Just $ SearchNotes query
-    "search":terms -> Just $ SearchNotes (T.unwords terms)
+    "search" : terms -> Just $ SearchNotes (T.unwords terms)
     ["list"] -> Just ListNotes
     ["ask"] -> Nothing
-    "ask":question -> Just $ AskQuestion (T.unwords question)
+    "ask" : question -> Just $ AskQuestion (T.unwords question)
     ["summarize"] -> Just $ SummarizeNotes []
-    "summarize":tags -> Just $ SummarizeNotes tags
+    "summarize" : tags -> Just $ SummarizeNotes tags
     ["help"] -> Just Help
     ["quit"] -> Just Quit
     ["exit"] -> Just Quit
@@ -207,27 +222,21 @@ processCommand cmd kb = case cmd of
         noteContent <- readMultilineInput
         addNote title noteContent tags kb
       else addNote title content tags kb
-
   SearchNotes query -> do
     _ <- searchNotes query kb
     return kb
-
   ListNotes -> do
     listNotes kb
     return kb
-
   AskQuestion question -> do
     askQuestion question kb
     return kb
-
   SummarizeNotes tags -> do
     summarizeNotes tags kb
     return kb
-
   Help -> do
     showHelp
     return kb
-
   Quit -> return kb
 
 readMultilineInput :: IO Text
@@ -242,23 +251,25 @@ readMultilineInput = do
         else readLines (line : acc)
 
 showHelp :: IO ()
-showHelp = putStrLn $ unlines
-  [ "Personal Knowledge Assistant Commands:"
-  , ""
-  , "  add <title> [content]    - Add a new note"
-  , "  search <query>           - Search notes by content"
-  , "  list                     - List all notes"
-  , "  ask <question>           - Ask AI about your notes"
-  , "  summarize [tags...]      - Generate AI summary of notes"
-  , "  help                     - Show this help"
-  , "  quit/exit                - Exit the application"
-  , ""
-  , "Examples:"
-  , "  add \"Meeting Notes\" Today we discussed the project timeline"
-  , "  search project"
-  , "  ask What did we decide about the timeline?"
-  , "  summarize meeting work"
-  ]
+showHelp =
+  putStrLn $
+    unlines
+      [ "Personal Knowledge Assistant Commands:"
+      , ""
+      , "  add <title> [content]    - Add a new note"
+      , "  search <query>           - Search notes by content"
+      , "  list                     - List all notes"
+      , "  ask <question>           - Ask AI about your notes"
+      , "  summarize [tags...]      - Generate AI summary of notes"
+      , "  help                     - Show this help"
+      , "  quit/exit                - Exit the application"
+      , ""
+      , "Examples:"
+      , "  add \"Meeting Notes\" Today we discussed the project timeline"
+      , "  search project"
+      , "  ask What did we decide about the timeline?"
+      , "  summarize meeting work"
+      ]
 
 -- Main application loop
 mainLoop :: KnowledgeBase -> IO ()
@@ -270,9 +281,7 @@ mainLoop kb = do
     Nothing -> do
       putStrLn "Invalid command. Type 'help' for available commands."
       mainLoop kb
-
     Just Quit -> putStrLn "Goodbye!"
-
     Just cmd -> do
       newKb <- processCommand cmd kb
       mainLoop newKb
@@ -289,20 +298,26 @@ runApp = do
 exampleUsage :: IO ()
 exampleUsage = do
   let kb = emptyKnowledgeBase
-  kb1 <- addNote "Project Planning"
-                 "We need to complete the MVP by Q2. Key features include user authentication, data visualization, and reporting."
-                 ["work", "project", "planning"]
-                 kb
+  kb1 <-
+    addNote
+      "Project Planning"
+      "We need to complete the MVP by Q2. Key features include user authentication, data visualization, and reporting."
+      ["work", "project", "planning"]
+      kb
 
-  kb2 <- addNote "Reading List"
-                 "Books to read: Clean Code, Design Patterns, Haskell Programming from First Principles"
-                 ["books", "learning", "programming"]
-                 kb1
+  kb2 <-
+    addNote
+      "Reading List"
+      "Books to read: Clean Code, Design Patterns, Haskell Programming from First Principles"
+      ["books", "learning", "programming"]
+      kb1
 
-  kb3 <- addNote "Recipe Ideas"
-                 "Try making: Thai green curry, homemade pasta, chocolate chip cookies"
-                 ["cooking", "recipes", "food"]
-                 kb2
+  kb3 <-
+    addNote
+      "Recipe Ideas"
+      "Try making: Thai green curry, homemade pasta, chocolate chip cookies"
+      ["cooking", "recipes", "food"]
+      kb2
 
   putStrLn "\n=== Demo: Searching for 'project' ==="
   _ <- searchNotes "project" kb3

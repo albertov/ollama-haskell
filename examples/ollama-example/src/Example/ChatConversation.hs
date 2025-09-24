@@ -8,7 +8,6 @@ import Data.Ollama.Chat
 import qualified Data.Text.IO as T
 import System.IO (hFlush, stdout)
 
-
 repl :: NE.NonEmpty Message -> IO ()
 repl msgList = do
   putStr "> "

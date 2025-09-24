@@ -2,9 +2,9 @@
 
 module Example.GenerateThinking (runApp) where
 
+import Data.Maybe (fromMaybe)
 import Data.Ollama.Generate
 import qualified Data.Text.IO as T
-import Data.Maybe (fromMaybe)
 
 runApp :: IO ()
 runApp = do

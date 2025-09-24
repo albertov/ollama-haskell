@@ -4,8 +4,8 @@ module Example.ChatWithImage (runApp) where
 
 import qualified Data.List.NonEmpty as NE
 import Data.Ollama.Chat
-import qualified Data.Text.IO as T
 import Data.Ollama.Common.Utils (encodeImage)
+import qualified Data.Text.IO as T
 
 runApp :: IO ()
 runApp = do
@@ -13,13 +13,14 @@ runApp = do
   case mbEncodedImage of
     Nothing -> putStrLn "Failed to load image"
     Just encodedImage -> do
-      let userMsg = Message {
-            role = User
-          , content = "What does this image say?"
-          , images = Just [encodedImage]
-          , tool_calls = Nothing
-          , thinking = Nothing
-        }
+      let userMsg =
+            Message
+              { role = User
+              , content = "What does this image say?"
+              , images = Just [encodedImage]
+              , tool_calls = Nothing
+              , thinking = Nothing
+              }
       let messageList = NE.singleton userMsg
       let ops =
             defaultChatOps

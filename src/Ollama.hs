@@ -10,7 +10,7 @@ Portability : portable
 
 == Ollama Haskell
 
-This module provides a high-level Haskell interface to the [Ollama](https://ollama.com) API 
+This module provides a high-level Haskell interface to the [Ollama](https://ollama.com) API
     for interacting with local LLMs. It includes support for:
 
 - Text generation (sync/streaming)
@@ -20,7 +20,7 @@ This module provides a high-level Haskell interface to the [Ollama](https://olla
 - Structured outputs
 - Custom configuration and model options
 
-Inspired by @ollama-python@, this library is built to offer idiomatic Haskell bindings 
+Inspired by @ollama-python@, this library is built to offer idiomatic Haskell bindings
 over Ollama’s HTTP API.
 
 == 🔧 Usage
@@ -31,7 +31,7 @@ Import this module as a top-level interface:
 import Ollama
 @
 
-All functions return @Either OllamaError a@ or can be used in a Monad stack using 
+All functions return @Either OllamaError a@ or can be used in a Monad stack using
 their @\*M@ variants.
 
 == 🔑 Main APIs
