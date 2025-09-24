@@ -152,7 +152,7 @@ Returns 'Right' with the validated 'ChatOps' or 'Left' with an 'OllamaError' if 
 -}
 validateChatOps :: ChatOps -> Either OllamaError ChatOps
 validateChatOps ops
-  | T.null (chatModelName ops) = Left $ InvalidRequest "Chat model name cannot be empty"
+  | T.null (modelName ops) = Left $ InvalidRequest "Chat model name cannot be empty"
   | any (T.null . content) (messages ops) =
       Left $ InvalidRequest "Messages cannot have empty content"
   | otherwise = Right ops
@@ -163,7 +163,7 @@ Defines the parameters for a chat request, including the model name, messages, a
 for tools, response format, streaming, timeout, and model options.
 -}
 data ChatOps = ChatOps
-  { chatModelName :: !Text
+  { modelName :: !Text
   -- ^ The name of the chat model to be used (e.g., "gemma3").
   , messages :: !(NonEmpty Message)
   -- ^ A non-empty list of messages forming the conversation context.
@@ -190,7 +190,7 @@ data ChatOps = ChatOps
 instance Show ChatOps where
   show
     ( ChatOps
-        { chatModelName = m
+        { modelName = m
         , messages = ms
         , tools = t
         , format = f
@@ -217,7 +217,7 @@ instance Show ChatOps where
 
 instance Eq ChatOps where
   (==) a b =
-    chatModelName a == chatModelName b
+    modelName a == modelName b
       && messages a == messages b
       && tools a == tools b
       && format a == format b
@@ -250,7 +250,7 @@ Either OllamaError ChatResponse
 defaultChatOps :: ChatOps
 defaultChatOps =
   ChatOps
-    { chatModelName = "gemma3"
+    { modelName = "gemma3"
     , messages = userMessage "What is 2+2?" :| []
     , tools = Nothing
     , format = Nothing

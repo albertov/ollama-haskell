@@ -222,7 +222,7 @@ testToolCallAddTwoNumbers = testCase "Tool call: addTwoNumbers(23, 46)" $ do
           }
       ops =
         defaultChatOps
-          { chatModelName = "qwen3:0.6b"
+          { modelName = "qwen3:0.6b"
           , messages = messageList
           , tools = Just [tool]
           }

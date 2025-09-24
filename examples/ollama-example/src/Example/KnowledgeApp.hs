@@ -15,7 +15,6 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Time
 import GHC.Generics
-import Ollama
 import System.Directory
 
 data Note = Note
@@ -128,7 +127,7 @@ askQuestion question kb = do
 
   let chatOps =
         defaultChatOps
-          { chatModelName = "gemma3"
+          { modelName = "gemma3"
           , messages =
               genMessage System systemPrompt :| [genMessage User question]
           }
@@ -178,7 +177,7 @@ summarizeNotes tags kb = do
 
       let chatOps =
             defaultChatOps
-              { chatModelName = "gemma3"
+              { modelName = "gemma3"
               , messages = genMessage User prompt :| []
               }
 

@@ -14,7 +14,14 @@ repl msgList = do
   hFlush stdout
   userQuestion <- T.getLine
   let msgListWithUser = msgList `NE.appendList` [userMessage userQuestion]
-  eRes <- chat (defaultChatOps {chatModelName = "gemma3", messages = msgListWithUser}) Nothing
+  eRes <-
+    chat
+      ( defaultChatOps
+          { modelName = "gemma3"
+          , messages = msgListWithUser
+          }
+      )
+      Nothing
   case eRes of
     Left err -> putStrLn $ "Something went wrong: " ++ show err
     Right r -> do

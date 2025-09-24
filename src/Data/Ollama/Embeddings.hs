@@ -56,22 +56,22 @@ Can be customized by modifying fields as needed.
 defaultEmbeddingOps :: EmbeddingOps
 defaultEmbeddingOps =
   EmbeddingOps
-    { model = "llama3.2"
+    { modelName = "nomic-embed-text"
     , input = []
     , truncateInput = Nothing
-    , keepAliveEmbed = Nothing
+    , keepAlive = Nothing
     , modelOptions = Nothing
     }
 
 -- | Configuration for an embedding request.
 data EmbeddingOps = EmbeddingOps
-  { model :: !Text
+  { modelName :: !Text
   -- ^ The name of the model to use for generating embeddings (e.g., "llama3.2").
   , input :: ![Text]
   -- ^ List of input texts to generate embeddings for.
   , truncateInput :: !(Maybe Bool)
   -- ^ Optional flag to truncate input if it exceeds model limits.
-  , keepAliveEmbed :: !(Maybe Int)
+  , keepAlive :: !(Maybe Int)
   -- ^ Optional override for the keep-alive timeout in minutes.
   , modelOptions :: !(Maybe ModelOptions)
   -- ^ Optional model parameters (e.g., temperature) as specified in the Modelfile.
@@ -125,16 +125,16 @@ embeddingOps ::
   -- | Optional 'OllamaConfig' (defaults to 'defaultOllamaConfig' if 'Nothing')
   Maybe OllamaConfig ->
   IO (Either OllamaError EmbeddingResp)
-embeddingOps modelName input_ mTruncate mKeepAlive mbOptions mbConfig = do
+embeddingOps modelName_ input_ mTruncate mKeepAlive mbOptions mbConfig = do
   withOllamaRequest
     "/api/embed"
     "POST"
     ( Just $
         EmbeddingOps
-          { model = modelName
+          { modelName = modelName_
           , input = input_
           , truncateInput = mTruncate
-          , keepAliveEmbed = mKeepAlive
+          , keepAlive = mKeepAlive
           , modelOptions = mbOptions
           }
     )
@@ -152,8 +152,8 @@ embedding ::
   -- | List of input texts
   [Text] ->
   IO (Either OllamaError EmbeddingResp)
-embedding modelName input_ =
-  embeddingOps modelName input_ Nothing Nothing Nothing Nothing
+embedding modelName_ input_ =
+  embeddingOps modelName_ input_ Nothing Nothing Nothing Nothing
 
 {- | MonadIO version of 'embedding' for use in monadic contexts.
 

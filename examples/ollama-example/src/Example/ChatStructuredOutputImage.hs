@@ -38,7 +38,7 @@ runApp = do
       let messageList = NE.singleton userMsg
       let ops =
             defaultChatOps
-              { chatModelName = "gemma3"
+              { modelName = "gemma3"
               , messages = messageList
               , format = Just $ SchemaFormat schema
               }

@@ -11,7 +11,7 @@ runApp = do
   let messageList = NE.singleton (userMessage "What is the meaning of life?")
   let ops =
         defaultChatOps
-          { chatModelName = "gemma3"
+          { modelName = "gemma3"
           , messages = messageList
           }
   eRes <- chat ops Nothing

@@ -40,7 +40,7 @@ runApp = do
           }
       ops =
         defaultChatOps
-          { chatModelName = "qwen3:0.6b"
+          { modelName = "qwen3:0.6b"
           , messages = messageList
           , tools = Just [inputTool]
           }
