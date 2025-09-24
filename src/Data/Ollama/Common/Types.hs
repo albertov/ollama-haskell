@@ -129,6 +129,10 @@ data GenerateResponse = GenerateResponse
   -- ^ Thinking of reasoning models; if think is set to true
   --
   -- @since 0.2.0.0
+  , doneReason :: !(Maybe Text)
+  -- ^ done reason
+  --
+  -- @since 0.2.1.0
   }
   deriving (Show, Eq)
 
@@ -146,6 +150,7 @@ instance FromJSON GenerateResponse where
       <*> v .:? "eval_count"
       <*> v .:? "eval_duration"
       <*> v .:? "thinking"
+      <*> v .:? "done_reason"
 
 -- | Enumerated roles that can participate in a chat.
 data Role = System | User | Assistant | Tool
@@ -205,6 +210,10 @@ data ChatResponse = ChatResponse
   -- ^ Optional count of evaluations during the chat process.
   , evalDuration :: !(Maybe Int64)
   -- ^ Optional duration in milliseconds for evaluations during the chat process.
+  , doneReason :: !(Maybe Text)
+  -- ^ done reason
+  --
+  -- @since 0.2.1.0
   }
   deriving (Show, Eq)
 
@@ -221,6 +230,7 @@ instance FromJSON ChatResponse where
       <*> v .:? "prompt_eval_duration"
       <*> v .:? "eval_count"
       <*> v .:? "eval_duration"
+      <*> v .:? "done_reason"
 
 -- | A workaround to use done field within commonStreamHandler
 class HasDone a where
