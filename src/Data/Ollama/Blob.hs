@@ -50,6 +50,7 @@ import Data.Text.Encoding qualified as TE
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Network.HTTP.Types (Status (statusCode))
+import System.Directory (doesFileExist)
 
 {- | Check if a blob exists on the Ollama server.
 
@@ -140,31 +141,36 @@ createBlob filePath digest mbOllamaConfig = do
   case eRequest of
     Left ex -> return $ Left $ Error.HttpError ex
     Right req -> do
-      -- Create a request body from the file
-      fileContent <- BS.readFile filePath
-      let request =
-            req
-              { method = "POST"
-              , requestBody = RequestBodyBS fileContent
-              }
+      -- check if file exists
+      fileExists <- doesFileExist filePath
+      if not fileExists
+        then return $ Left $ Error.ApiError "File does not exist"
+        else do
+          -- Create a request body from the file
+          fileContent <- BS.readFile filePath
+          let request =
+                req
+                  { method = "POST"
+                  , requestBody = RequestBodyBS fileContent
+                  }
 
-      eResponse <- try $ withResponse request manager $ \response -> do
-        let status = statusCode $ responseStatus response
-        case status of
-          201 -> return $ Right ()
-          400 -> do
-            bodyReader <- brRead $ responseBody response
-            return $
-              Left $
-                Error.ApiError $
-                  "Bad request - digest mismatch: " <> TE.decodeUtf8 bodyReader
-          _ -> do
-            bodyReader <- brRead $ responseBody response
-            return $
-              Left $
-                Error.ApiError $
-                  "Unexpected status code " <> T.pack (show status) <> ": " <> TE.decodeUtf8 bodyReader
+          eResponse <- try $ withResponse request manager $ \response -> do
+            let status = statusCode $ responseStatus response
+            case status of
+              201 -> return $ Right ()
+              400 -> do
+                bodyReader <- brRead $ responseBody response
+                return $
+                  Left $
+                    Error.ApiError $
+                      "Bad request - digest mismatch: " <> TE.decodeUtf8 bodyReader
+              _ -> do
+                bodyReader <- brRead $ responseBody response
+                return $
+                  Left $
+                    Error.ApiError $
+                      "Unexpected status code " <> T.pack (show status) <> ": " <> TE.decodeUtf8 bodyReader
 
-      case eResponse of
-        Left ex -> return $ Left $ Error.HttpError ex
-        Right result -> return result
+          case eResponse of
+            Left ex -> return $ Left $ Error.HttpError ex
+            Right result -> return result

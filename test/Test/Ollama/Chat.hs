@@ -258,6 +258,33 @@ convertToNumber :: Aeson.Value -> Maybe Int
 convertToNumber (Aeson.Number n) = toBoundedInteger n
 convertToNumber _ = Nothing
 
+-- | Test conversation with multiple messages
+multiMessageConversationTest :: TestTree
+multiMessageConversationTest = testCase "Multi-message conversation should work" $ do
+  let msgs =
+        fromList
+          [ systemMessage "You are a helpful assistant."
+          , userMessage "What is 2+2?"
+          , assistantMessage "2+2 equals 4."
+          , userMessage "What about 3+3?"
+          ]
+      ops = defaultChatOps {messages = msgs}
+  eRes <- chat ops Nothing
+  case eRes of
+    Left _ -> assertFailure "Expected success, got error"
+    Right r -> case message r of
+      Nothing -> assertFailure "Expected a message in response"
+      Just msg -> assertBool "Should contain '6'" (T.isInfixOf "6" (content msg))
+
+-- | Test invalid model name
+invalidModelChatTest :: TestTree
+invalidModelChatTest = testCase "Invalid model name should fail" $ do
+  let ops = defaultChatOps {modelName = "nonexistent-chat-model"}
+  eRes <- chat ops Nothing
+  case eRes of
+    Left _ -> assertBool "Should fail with invalid model" True
+    Right _ -> assertFailure "Should not succeed with invalid model"
+
 -- | Group all tests
 tests :: TestTree
 tests =
@@ -275,4 +302,6 @@ tests =
     , streamingTest
     , modelOptionsTest
     , testToolCallAddTwoNumbers
+    , multiMessageConversationTest
+    , invalidModelChatTest
     ]

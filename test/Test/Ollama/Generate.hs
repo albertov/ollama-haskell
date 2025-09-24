@@ -241,6 +241,10 @@ testImageInput = testCase "Should accept and process base64 image input" $ do
   case maybeImg of
     Nothing -> assertFailure "Image encoding failed (unsupported format or missing file)"
     Just imgData -> do
+      -- Validate the encoded image data
+      assertBool "Encoded image should not be empty" (not $ T.null imgData)
+      assertBool "Encoded image should be reasonable length" (T.length imgData > 100)
+
       let ops =
             defaultGenerateOps
               { modelName = "gemma3"
@@ -254,6 +258,7 @@ testImageInput = testCase "Should accept and process base64 image input" $ do
         Left err -> assertFailure $ "Expected success, got error: " ++ show err
         Right r -> do
           let response = T.toLower (genResponse r)
+          assertBool "Response should not be empty" (not $ T.null response)
           assertBool "Expected image-related description in response" $
             T.isInfixOf "i love haskell" response
 
@@ -304,6 +309,35 @@ testModelOptionsBasic = testCase "ModelOptions: temperature and topP" $ do
     Left err -> assertFailure $ "Expected success, got: " ++ show err
     Right r -> assertBool "Response should not be empty" (not . T.null $ genResponse r)
 
+testModelOptionsEdgeCases :: TestTree
+testModelOptionsEdgeCases = testCase "ModelOptions: edge case values" $ do
+  let opts =
+        Just $
+          defaultModelOptions
+            { temperature = Just 0.0 -- Minimum temperature
+            , topP = Just 1.0 -- Maximum topP
+            , topK = Just 1 -- Minimum topK
+            , numPredict = Just 1 -- Minimum prediction
+            }
+  eRes <-
+    generate
+      defaultGenerateOps
+        { modelName = "gemma3"
+        , prompt = "Hi"
+        , options = opts
+        }
+      Nothing
+  case eRes of
+    Left _ -> assertFailure "Expected success, got error"
+    Right _ -> assertBool "Should handle edge case model options" True
+
+testInvalidModelName :: TestTree
+testInvalidModelName = testCase "Invalid model name should fail gracefully" $ do
+  eRes <- generate defaultGenerateOps {modelName = "invalid-model-xyz"} Nothing
+  case eRes of
+    Left _ -> assertBool "Should fail with invalid model name" True
+    Right _ -> assertFailure "Should not succeed with invalid model name"
+
 tests :: TestTree
 tests =
   sequentialTestGroup
@@ -321,4 +355,6 @@ tests =
     , testImageInput
     , testStreamingHandler
     , testModelOptionsBasic
+    , testModelOptionsEdgeCases
+    , testInvalidModelName
     ]

@@ -75,9 +75,16 @@ test-suite ollama-haskell-test
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
+      Test.Ollama.Blob
       Test.Ollama.Chat
+      Test.Ollama.Common
+      Test.Ollama.Copy
+      Test.Ollama.Create
+      Test.Ollama.Delete
       Test.Ollama.Embedding
       Test.Ollama.Generate
+      Test.Ollama.List
+      Test.Ollama.Load
       Test.Ollama.Show
       Paths_ollama_haskell
   hs-source-dirs:
