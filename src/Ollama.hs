@@ -144,6 +144,10 @@ module Ollama
   , showModelM
   , showModelOpsM
 
+    -- ** Blob Operations
+  , checkBlobExists
+  , createBlob
+
     -- * Ollama config
   , defaultOllamaConfig
   , withOnModelStart
@@ -177,6 +181,7 @@ module Ollama
   )
 where
 
+import Data.Ollama.Blob
 import Data.Ollama.Chat
 import Data.Ollama.Common.Config
 import Data.Ollama.Common.Types
