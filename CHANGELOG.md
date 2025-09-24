@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.2.1.0 -- 2025-09-24
+
+* Added blob module for managing binary large objects (GGUF files/safetensors).
+* Breaking: Added `dimensions` option in embeddings for specifying embedding dimensions.
+* Breaking: Added `doneReason` field in chat and generate responses.
+* Improved test suite with more comprehensive test cases.
+* Added `onComplete` callback function in stream handlers for better streaming control.
+* Breaking: Standardized field names across the library for consistency.
+* Applied fourmolu code formatting and added hlint for better code quality.
+
 ## 0.2.0.0 -- 2025-06-05
 
 * Added stack matrix to ensure lib is buildable from lts-19.33

@@ -130,7 +130,8 @@ data GenerateResponse = GenerateResponse
   --
   -- @since 0.2.0.0
   , doneReason :: !(Maybe Text)
-  -- ^ done reason
+  -- ^ Reason why the generation process completed (e.g., "stop", "length", "cancel").
+  -- Available when the Ollama server provides completion reason information.
   --
   -- @since 0.2.1.0
   }
@@ -211,7 +212,8 @@ data ChatResponse = ChatResponse
   , evalDuration :: !(Maybe Int64)
   -- ^ Optional duration in milliseconds for evaluations during the chat process.
   , doneReason :: !(Maybe Text)
-  -- ^ done reason
+  -- ^ Reason why the chat process completed (e.g., "stop", "length", "cancel").
+  -- Available when the Ollama server provides completion reason information.
   --
   -- @since 0.2.1.0
   }
