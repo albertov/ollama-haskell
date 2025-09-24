@@ -61,6 +61,7 @@ defaultEmbeddingOps =
     , truncateInput = Nothing
     , keepAlive = Nothing
     , modelOptions = Nothing
+    , dimensions = Nothing
     }
 
 -- | Configuration for an embedding request.
@@ -77,6 +78,10 @@ data EmbeddingOps = EmbeddingOps
   -- ^ Optional model parameters (e.g., temperature) as specified in the Modelfile.
   --
   -- @since 0.2.0.0
+  , dimensions :: !(Maybe Int)
+  -- ^ number of dimensions for the embedding
+  --
+  -- @since 0.2.1.0
   }
   deriving (Show, Eq)
 
@@ -96,13 +101,14 @@ instance FromJSON EmbeddingResp where
       <*> v .: "embeddings"
 
 instance ToJSON EmbeddingOps where
-  toJSON (EmbeddingOps model_ input_ truncate' keepAlive_ ops) =
+  toJSON (EmbeddingOps model_ input_ truncate' keepAlive_ ops dimensions_) =
     object
       [ "model" .= model_
       , "input" .= input_
       , "truncate" .= truncate'
       , "keep_alive" .= keepAlive_
       , "options" .= ops
+      , "dimensions" .= dimensions_
       ]
 
 {- | Generates embeddings for a list of input texts with full configuration.
@@ -123,9 +129,10 @@ embeddingOps ::
   -- | Optional model options
   Maybe ModelOptions ->
   -- | Optional 'OllamaConfig' (defaults to 'defaultOllamaConfig' if 'Nothing')
+  Maybe Int ->
   Maybe OllamaConfig ->
   IO (Either OllamaError EmbeddingResp)
-embeddingOps modelName_ input_ mTruncate mKeepAlive mbOptions mbConfig = do
+embeddingOps modelName_ input_ mTruncate mKeepAlive mbOptions mbDimensions mbConfig = do
   withOllamaRequest
     "/api/embed"
     "POST"
@@ -136,6 +143,7 @@ embeddingOps modelName_ input_ mTruncate mKeepAlive mbOptions mbConfig = do
           , truncateInput = mTruncate
           , keepAlive = mKeepAlive
           , modelOptions = mbOptions
+          , dimensions = mbDimensions
           }
     )
     mbConfig
@@ -153,7 +161,7 @@ embedding ::
   [Text] ->
   IO (Either OllamaError EmbeddingResp)
 embedding modelName_ input_ =
-  embeddingOps modelName_ input_ Nothing Nothing Nothing Nothing
+  embeddingOps modelName_ input_ Nothing Nothing Nothing Nothing Nothing
 
 {- | MonadIO version of 'embedding' for use in monadic contexts.
 
@@ -174,7 +182,8 @@ embeddingOpsM ::
   Maybe Bool ->
   Maybe Int ->
   Maybe ModelOptions ->
+  Maybe Int ->
   Maybe OllamaConfig ->
   m (Either OllamaError EmbeddingResp)
-embeddingOpsM m ip mbTruncate mbKeepAlive mbOptions mbCfg =
-  liftIO $ embeddingOps m ip mbTruncate mbKeepAlive mbOptions mbCfg
+embeddingOpsM m ip mbTruncate mbKeepAlive mbOptions mbDimensions mbCfg =
+  liftIO $ embeddingOps m ip mbTruncate mbKeepAlive mbOptions mbDimensions mbCfg

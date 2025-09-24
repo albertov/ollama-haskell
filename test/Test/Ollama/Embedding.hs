@@ -20,7 +20,15 @@ testEmbeddingBasic = testCase "Basic embedding with qwen3" $ do
 testEmbeddingWithOptions :: TestTree
 testEmbeddingWithOptions = testCase "Embedding with truncate and keepAlive" $ do
   let opts = defaultModelOptions {numKeep = Just 5, seed = Just 42}
-  res <- embeddingOps "qwen3:0.6b" ["Hello world"] (Just True) (Just 30) (Just opts) Nothing
+  res <-
+    embeddingOps
+      "qwen3:0.6b"
+      ["Hello world"]
+      (Just True)
+      (Just 30)
+      (Just opts)
+      Nothing
+      Nothing
   case res of
     Left err -> assertFailure $ "Unexpected error: " ++ show err
     Right EmbeddingResp {..} -> do
