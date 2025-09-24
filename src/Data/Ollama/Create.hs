@@ -117,7 +117,7 @@ createModel
               }
         )
         mbConfig
-        (commonStreamHandler onToken)
+        (commonStreamHandler (onToken, pure ()))
     where
       onToken :: CreateModelResp -> IO ()
       onToken _ = putStrLn "Creating model..."

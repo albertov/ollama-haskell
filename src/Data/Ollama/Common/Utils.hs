@@ -214,10 +214,10 @@ indicates completion (via 'HasDone'). Returns the final decoded response or an e
 commonStreamHandler ::
   (HasDone a, FromJSON a) =>
   -- | Function to handle each decoded chunk
-  (a -> IO ()) ->
+  (a -> IO (), IO ()) ->
   Response BodyReader ->
   IO (Either OllamaError a)
-commonStreamHandler sendChunk resp = go mempty
+commonStreamHandler (sendChunk, onComplete) resp = go mempty
   where
     go acc = do
       bs <- brRead $ responseBody resp
@@ -232,7 +232,7 @@ commonStreamHandler sendChunk resp = go mempty
             Left err -> return $ Left $ Error.DecodeError err (show acc)
             Right res -> do
               sendChunk res
-              if getDone res then return (Right res) else go (acc <> bs)
+              if getDone res then onComplete >> return (Right res) else go (acc <> bs)
 
 {- | Handles non-JSON API responses.
 

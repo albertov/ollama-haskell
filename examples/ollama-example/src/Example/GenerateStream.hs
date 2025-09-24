@@ -16,7 +16,7 @@ runApp = do
         defaultGenerateOps
           { modelName = "gemma3"
           , prompt = "What is the meaning of life?"
-          , stream = Just streamHandler
+          , stream = Just (streamHandler, pure ())
           }
   eRes <- generate ops Nothing
   case eRes of

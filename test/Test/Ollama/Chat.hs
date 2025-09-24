@@ -168,7 +168,7 @@ streamingTest :: TestTree
 streamingTest = testCase "Should handle streaming response" $ do
   chunksRef <- newIORef []
   let streamHandler chunk = modifyIORef chunksRef (++ [message chunk])
-      ops = defaultChatOps {stream = Just streamHandler}
+      ops = defaultChatOps {stream = Just (streamHandler, pure ())}
   eRes <- chat ops Nothing
   chunks <- readIORef chunksRef
   let fullOutput = T.concat (map (maybe "" content) chunks)

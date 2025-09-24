@@ -173,7 +173,7 @@ data ChatOps = ChatOps
   -- ^ Optional format for the chat response (e.g., JSON or JSON schema).
   --
   -- @since 0.1.3.0
-  , stream :: !(Maybe (ChatResponse -> IO ()))
+  , stream :: !(Maybe (ChatResponse -> IO (), IO ()))
   -- ^ Optional callback function to be called with each incoming response.
   , keepAlive :: !(Maybe Int)
   -- ^ Optional override for the response timeout in minutes (default: 15 minutes).

@@ -97,7 +97,7 @@ pullOps modelName mInsecure mStream mbConfig = do
     "POST"
     (Just $ PullOps {name = modelName, insecure = mInsecure, stream = mStream})
     mbConfig
-    (commonStreamHandler onToken)
+    (commonStreamHandler (onToken, pure ()))
   where
     onToken :: PullResp -> IO ()
     onToken res = do

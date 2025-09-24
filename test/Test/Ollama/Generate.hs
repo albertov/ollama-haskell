@@ -35,7 +35,10 @@ generateTests =
     , testCase "Setting timeout" $ do
         eRes <-
           generate
-            defaultGenerateOps {modelName = "gemma3", prompt = "Write a poem about French revolution"}
+            defaultGenerateOps
+              { modelName = "gemma3"
+              , prompt = "Write a poem about French revolution"
+              }
             (Just $ defaultOllamaConfig {timeout = 1})
         case eRes of
           Left (TimeoutError _) -> pure ()
@@ -264,7 +267,7 @@ testStreamingHandler = testCase "Should handle streaming response" $ do
         defaultGenerateOps
           { modelName = "gemma3"
           , prompt = "Write few words about Haskell."
-          , stream = Just streamHandler
+          , stream = Just (streamHandler, pure ())
           }
   eRes <- generate ops Nothing
   -- Collect streamed chunks from IORef

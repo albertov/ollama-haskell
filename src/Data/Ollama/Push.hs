@@ -94,7 +94,7 @@ push modelName mInsecure mStream mbConfig = do
       "POST"
       (Just $ PushOps {name = modelName, insecure = mInsecure, stream = mStream})
       mbConfig
-      (commonStreamHandler onToken)
+      (commonStreamHandler (onToken, pure ()))
   where
     onToken :: PushResp -> IO ()
     onToken _ = putStrLn "Pushing... "
