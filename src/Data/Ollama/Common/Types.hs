@@ -94,12 +94,13 @@ instance FromJSON ModelDetails where
 
 @since 0.1.3.0
 -}
-data Format = JsonFormat | SchemaFormat Schema
+data Format = JsonFormat | SchemaFormat Schema | JsonSchema Value
   deriving (Show, Eq)
 
 instance ToJSON Format where
   toJSON JsonFormat = String "json"
   toJSON (SchemaFormat schema) = toJSON schema
+  toJSON (JsonSchema renderedSchema) = renderedSchema
 
 {- |
 Result type for 'generate' function containing the model's response and meta-information.
